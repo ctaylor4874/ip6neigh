@@ -1,4 +1,4 @@
-## Giving local DNS names to IPv6 SLAAC addresses 
+# Giving local DNS names to IPv6 SLAAC addresses 
 #### OpenWrt/LEDE shell script
 
 ## Synopsis
