@@ -60,7 +60,7 @@ errormsg() {
 }
 
 #Loads UCI configuration file
-[ -f "$CONFIG_FILE" ] || errormsg "The UCI config file $CONFIG_FILE is missing. A template is avaliable at https://github.com/AndreBL/ip6neigh ."
+[ -f "$CONFIG_FILE" ] || errormsg "The UCI config file $CONFIG_FILE is missing. A template is avaliable at https://github.com/ctaylor4874/ip6neigh ."
 [ -f "/etc/config/dhcp" ] || errormsg "The UCI config file /etc/config/dhcp is missing."
 reset_cb
 config_load ip6neigh

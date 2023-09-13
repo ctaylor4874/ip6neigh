@@ -28,7 +28,7 @@ readonly CACHE_FILE="/tmp/ip6neigh.cache"
 
 readonly SERVICE_NAME="ip6neigh-svc.sh"
 
-readonly REPO="https://raw.githubusercontent.com/AndreBL/ip6neigh/master/"
+readonly REPO="https://raw.githubusercontent.com/ctaylor4874/ip6neigh/master/"
 
 #Installation list
 readonly inst_list="
@@ -179,7 +179,7 @@ install() {
 	download_file "${TEMP_DIR}VERSION" "setup/VERSION"
 	local loc_version=$(echo "$VERSION" | cut -d '.' -f1-2)
 	local rem_version=$(cut -d '.' -f1-2 "${TEMP_DIR}VERSION")
-	[ "$loc_version" = "$rem_version" ] || errormsg "This installation script is out of date. Please visit https://github.com/AndreBL/ip6neigh and check if a new version of the installer is available for download."
+	[ "$loc_version" = "$rem_version" ] || errormsg "This installation script is out of date. Please visit https://github.com/ctaylor4874/ip6neigh and check if a new version of the installer is available for download."
 	echo "The installer script is up to date."
 	
 	#Check operating system
@@ -198,7 +198,7 @@ install() {
 		
 		'LEDE')
 			#Warning message
-			echo -e "\nWARNING: ip6neigh requires package 'ip-full' version 4.4.0-9 or above to run on LEDE. Using an older build will not work due to an issue with the 'ip monitor' command. Please visit https://github.com/AndreBL/ip6neigh for more info about installing or upgrading this package."
+			echo -e "\nWARNING: ip6neigh requires package 'ip-full' version 4.4.0-9 or above to run on LEDE. Using an older build will not work due to an issue with the 'ip monitor' command. Please visit https://github.com/ctaylor4874/ip6neigh for more info about installing or upgrading this package."
 			
 			#Check ip-full package
 			ip 2>&1 >/dev/null | grep -q 'monitor'
