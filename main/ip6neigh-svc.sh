@@ -21,7 +21,7 @@ readonly SVC_VERSION='1.7.1'
 readonly CONFIG_FILE='/etc/config/ip6neigh'
 readonly HOSTS_FILE='/tmp/hosts/ip6neigh'
 readonly CACHE_FILE='/tmp/ip6neigh.cache'
-readonly OUI_FILE='/usr/share/ip6neigh/oui.gz'
+readonly OUI_FILE='/opt/ip6neigh/oui.gz'
 readonly TEMP_FILE='/tmp/ip6neigh.tmp'
 
 #Print version info if requested

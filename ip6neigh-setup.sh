@@ -19,7 +19,7 @@ readonly VERSION='1.7.0'
 readonly BIN_DIR="/usr/bin/"
 readonly SBIN_DIR="/usr/sbin/"
 readonly LIB_DIR="/usr/lib/ip6neigh/"
-readonly SHARE_DIR="/usr/share/ip6neigh/"
+readonly SHARE_DIR="/opt/ip6neigh/"
 readonly TEMP_DIR="/tmp/ip6neigh/"
 
 readonly CONFIG_FILE="/etc/config/ip6neigh"

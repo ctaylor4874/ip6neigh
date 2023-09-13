@@ -26,7 +26,7 @@ readonly HOSTS_FILE='/tmp/hosts/ip6neigh'
 readonly CACHE_FILE='/tmp/ip6neigh.cache'
 readonly SERVICE_NAME='ip6neigh-svc.sh'
 readonly SBIN_DIR='/usr/sbin/'
-readonly SHARE_DIR='/usr/share/ip6neigh/'
+readonly SHARE_DIR='/opt/ip6neigh/'
 readonly SERVICE_SCRIPT="${SBIN_DIR}${SERVICE_NAME}"
 readonly OUI_FILE="${SHARE_DIR}oui.gz"
 
@@ -398,7 +398,7 @@ whois_this() {
 #Download OUI database
 oui_download() {
 	echo "Downloading Nmap MAC prefixes..."
-	curl -# -S -f -k -o '/tmp/oui-raw.txt' 'https://linuxnet.ca/ieee/oui/nmap-mac-prefixes' || exit 2
+	curl -# -S -f -k -o '/tmp/oui-raw.txt' 'https://svn.nmap.org/nmap/nmap-mac-prefixes' || exit 2
 
 	echo -e "\nApplying filters..."
 
