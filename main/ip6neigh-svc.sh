@@ -1035,7 +1035,7 @@ main_service() {
 		echo "$new_prefix" > "/tmp/etc/prefix.${LAN_DEV}"
 				
 		#Persistent file for storing the old prefix
-		local file='/etc/deprecate.prefix'
+		local file='/opt/deprecate.prefix'
 
 		#Read the old prefix from the persistent file
 		local old_prefix=$(cat "$file" 2>/dev/null)
