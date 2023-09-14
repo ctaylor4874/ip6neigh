@@ -29,6 +29,8 @@ readonly SBIN_DIR='/usr/sbin/'
 readonly SHARE_DIR='/opt/ip6neigh/'
 readonly SERVICE_SCRIPT="${SBIN_DIR}${SERVICE_NAME}"
 readonly OUI_FILE="${SHARE_DIR}oui.gz"
+readonly HISTORICAL_HOSTS_FILE='/opt/ip6neigh/ip6neigh.hist'
+readonly TMP_HISTORICAL_HOSTS_FILE='/opt/ip6neigh/ip6neigh.hist.tmp'
 
 #Print version info and return if requested
 if [ "$1" = '--version' ]; then
@@ -491,6 +493,27 @@ oui_cmd() {
 	esac
 }
 
+#Cleans historical data
+clean_historical_hosts() {
+	local now_date
+	local save_date
+	local line
+
+  rm $TMP_HISTORICAL_HOSTS_FILE;
+
+	now_date=$(date +%s)
+  while IFS="" read -r line || [ -n "$line" ]
+  do
+    save_date=$(echo "$line" | cut -d "#" -f 2 | { read -r line_date; date -D '%Y-%m-%dT%H:%M' -d "$line_date" +%s; }) || exit
+    if [ $(( ($now_date - $save_date )/(60*60) )) -lt 24 ]; then
+      echo "$line" >> $TMP_HISTORICAL_HOSTS_FILE
+    fi;
+  done < $HISTORICAL_HOSTS_FILE
+
+	mv "$TMP_HISTORICAL_HOSTS_FILE" "$HISTORICAL_HOSTS_FILE"
+  rm $TMP_HISTORICAL_HOSTS_FILE;
+}
+
 #Show log contents
 log_read() {
 	load_config
@@ -534,6 +557,7 @@ case "$1" in
 	'resolve'|'res')	resolve_cmd "$2" "$3";;
 	'whois'|'whos'|'who') whois_this "$2";;
 	'oui')				oui_cmd "$2";;
+	'cleanup')				clean_historical_hosts;;
 	'logread'|'log')	log_read "$2";;
 	*)					display_help;;
 esac

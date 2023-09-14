@@ -23,6 +23,7 @@ readonly HOSTS_FILE='/tmp/hosts/ip6neigh'
 readonly CACHE_FILE='/tmp/ip6neigh.cache'
 readonly OUI_FILE='/opt/ip6neigh/oui.gz'
 readonly TEMP_FILE='/tmp/ip6neigh.tmp'
+readonly HISTORICAL_HOSTS_FILE='/opt/ip6neigh/ip6neigh.hist'
 
 #Print version info if requested
 [ "$1" = '--version' ] && echo "ip6neigh Service Script v${SVC_VERSION}"
@@ -135,13 +136,27 @@ add() {
 
 #Removes entry from hosts file
 remove() {
+	local now
 	local addr="$1"
+	local host
+	local exists
+
+	now=$(date -Im | sed 's/......$//')
+
 	grep -q "^$addr " "$HOSTS_FILE" || return 0
+
+  exists=$(grep -m 1 "^$addr " "$HISTORICAL_HOSTS_FILE")
+  if [ -z "$exists" ]; then
+    #Get the host from the address before removing
+    host=$(grep -m 1 "^${addr} " "$HOSTS_FILE")
+    echo "${host} #${now}" >> "$HISTORICAL_HOSTS_FILE"
+  fi
+
 	#Must save changes to another temp file and then move it over the main file.
 	grep -v "^$addr " "$HOSTS_FILE" > "$TEMP_FILE"
 	mv "$TEMP_FILE" "$HOSTS_FILE"
 
-	logmsg "Removed host: $addr"
+	logmsg "Removed host & added host to historical file: $addr"
 	reload_pending=1
 	return 0
 }
