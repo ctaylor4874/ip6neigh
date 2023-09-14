@@ -141,6 +141,8 @@ remove() {
 	local host
 	local exists
 
+	logmsg "Removing: $addr"
+
 	now=$(date -Im | sed 's/......$//')
 
 	grep -q "^$addr " "$HOSTS_FILE" || return 0
