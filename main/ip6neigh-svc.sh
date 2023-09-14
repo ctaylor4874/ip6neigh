@@ -146,7 +146,7 @@ remove() {
 	grep -q "^$addr " "$HOSTS_FILE" || return 0
 
   exists=$(grep -m 1 "^$addr " "$HISTORICAL_HOSTS_FILE")
-  if [ -z "$exists" ]; then
+  if [ -z "$exists" ] && [ "${addr//[$' \t\n\r']/}" != 'Deleted' ]; then
     #Get the host from the address before removing
     host=$(grep -m 1 "^${addr} " "$HOSTS_FILE")
     echo "${host} #${now}" >> "$HISTORICAL_HOSTS_FILE"
