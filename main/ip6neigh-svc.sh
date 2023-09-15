@@ -23,7 +23,8 @@ readonly HOSTS_FILE='/tmp/hosts/ip6neigh'
 readonly CACHE_FILE='/tmp/ip6neigh.cache'
 readonly OUI_FILE='/opt/ip6neigh/oui.gz'
 readonly TEMP_FILE='/tmp/ip6neigh.tmp'
-readonly HISTORICAL_HOSTS_FILE='/opt/ip6neigh/ip6neigh.hist'
+readonly HISTORICAL_HOSTS_FILE='/tmp/hosts/ip6neigh.hist'
+readonly HISTORICAL_HOSTS_FILE_BACKUP='/opt/ip6neigh/ip6neigh.backup'
 
 #Print version info if requested
 [ "$1" = '--version' ] && echo "ip6neigh Service Script v${SVC_VERSION}"
@@ -134,35 +135,45 @@ add() {
 	return 0
 }
 
-#Removes entry from hosts file
-remove() {
-	local now
+add_host_to_historical() {
 	local addr="$1"
+	local now
 	local host
 	local exists
+  #Get the host from the address before removing
+  host=$(grep -m 1 "^${addr} " "$HOSTS_FILE")
 
-	logmsg "Removing: $addr"
-
-	now=$(date -Im | sed 's/......$//')
-
-	grep -q "^$addr " "$HOSTS_FILE" || return 0
+  now=$(date -Im | sed 's/......$//')
 
   if [ ! -f $HISTORICAL_HOSTS_FILE ]; then
     touch $HISTORICAL_HOSTS_FILE
   fi;
 
-  exists=$(grep -m 1 "^$addr " "$HISTORICAL_HOSTS_FILE")
+  if [ ! -f $HISTORICAL_HOSTS_FILE_BACKUP ]; then
+    touch $HISTORICAL_HOSTS_FILE_BACKUP
+  fi;
+
+  exists=$(grep -m 1 "^$addr " "$HISTORICAL_HOSTS_FILE_BACKUP")
   if [ -z "$exists" ] && [ "${addr//[$' \t\n\r']/}" != 'Deleted' ]; then
-    #Get the host from the address before removing
-    host=$(grep -m 1 "^${addr} " "$HOSTS_FILE")
     echo "${host} #${now}" >> "$HISTORICAL_HOSTS_FILE"
+    echo "${host} #${now}" >> "$HISTORICAL_HOSTS_FILE_BACKUP"
   fi
 
+	logmsg "Added host to historical host files: $host #$now"
+}
+
+#Removes entry from hosts file
+remove() {
+	local addr="$1"
+
+	grep -q "^$addr " "$HOSTS_FILE" || return 0
+	add_host_to_historical "$addr"
+	sleep 2
 	#Must save changes to another temp file and then move it over the main file.
 	grep -v "^$addr " "$HOSTS_FILE" > "$TEMP_FILE"
 	mv "$TEMP_FILE" "$HOSTS_FILE"
 
-	logmsg "Removed host & added host to historical file: $addr"
+	logmsg "Removed host: $addr"
 	reload_pending=1
 	return 0
 }
@@ -887,6 +898,10 @@ main_service() {
 	if [ "$LOG" != "0" ] && [ "$LOG" != "1" ]; then
 		> "$LOG"
 	fi
+
+  if [ -f $HISTORICAL_HOSTS_FILE_BACKUP ]; then
+    cat $HISTORICAL_HOSTS_FILE_BACKUP > $HISTORICAL_HOSTS_FILE
+  fi;
 
 	#Startup message
 	logmsg "Starting ip6neigh main service v${SVC_VERSION} for physdev $LAN_DEV with domain $DOMAIN"

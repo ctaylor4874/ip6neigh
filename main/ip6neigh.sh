@@ -29,8 +29,9 @@ readonly SBIN_DIR='/usr/sbin/'
 readonly SHARE_DIR='/opt/ip6neigh/'
 readonly SERVICE_SCRIPT="${SBIN_DIR}${SERVICE_NAME}"
 readonly OUI_FILE="${SHARE_DIR}oui.gz"
-readonly HISTORICAL_HOSTS_FILE='/opt/ip6neigh/ip6neigh.hist'
-readonly TMP_HISTORICAL_HOSTS_FILE='/opt/ip6neigh/ip6neigh.hist.tmp'
+readonly HISTORICAL_HOSTS_FILE='/tmp/hosts/ip6neigh.hist'
+readonly HISTORICAL_HOSTS_FILE_BACKUP='/opt/ip6neigh/ip6neigh.backup'
+readonly TMP_HISTORICAL_HOSTS_FILE_BACKUP='/opt/ip6neigh/ip6neigh.backup.tmp'
 
 #Print version info and return if requested
 if [ "$1" = '--version' ]; then
@@ -499,19 +500,22 @@ clean_historical_hosts() {
 	local save_date
 	local line
 
-  rm $TMP_HISTORICAL_HOSTS_FILE;
+  rm $TMP_HISTORICAL_HOSTS_FILE_BACKUP;
 
 	now_date=$(date +%s)
   while IFS="" read -r line || [ -n "$line" ]
   do
     save_date=$(echo "$line" | cut -d "#" -f 2 | { read -r line_date; date -D '%Y-%m-%dT%H:%M' -d "$line_date" +%s; }) || exit
     if [ $(( ($now_date - $save_date )/(60*60) )) -lt 24 ]; then
-      echo "$line" >> $TMP_HISTORICAL_HOSTS_FILE
+      echo "$line" >> $TMP_HISTORICAL_HOSTS_FILE_BACKUP
     fi;
-  done < $HISTORICAL_HOSTS_FILE
+  done < $HISTORICAL_HOSTS_FILE_BACKUP
 
-	mv "$TMP_HISTORICAL_HOSTS_FILE" "$HISTORICAL_HOSTS_FILE"
-  rm $TMP_HISTORICAL_HOSTS_FILE;
+	mv "$TMP_HISTORICAL_HOSTS_FILE_BACKUP" "$HISTORICAL_HOSTS_FILE_BACKUP"
+	#Copy backup to /tmp/hosts locatoin
+	cat "$HISTORICAL_HOSTS_FILE_BACKUP" > "$HISTORICAL_HOSTS_FILE"
+
+  rm $TMP_HISTORICAL_HOSTS_FILE_BACKUP;
 }
 
 #Show log contents
