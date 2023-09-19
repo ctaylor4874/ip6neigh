@@ -500,22 +500,29 @@ clean_historical_hosts() {
 	local save_date
 	local line
 
-  rm $TMP_HISTORICAL_HOSTS_FILE_BACKUP;
+  if [ -f $TMP_HISTORICAL_HOSTS_FILE_BACKUP ]; then
+    rm $TMP_HISTORICAL_HOSTS_FILE_BACKUP;
+  fi;
+
+  touch $TMP_HISTORICAL_HOSTS_FILE_BACKUP;
 
 	now_date=$(date +%s)
   while IFS="" read -r line || [ -n "$line" ]
   do
     save_date=$(echo "$line" | cut -d "#" -f 2 | { read -r line_date; date -D '%Y-%m-%dT%H:%M' -d "$line_date" +%s; }) || exit
     if [ $(( ($now_date - $save_date )/(60*60) )) -lt 24 ]; then
+      echo "Adding $line to backup file"
       echo "$line" >> $TMP_HISTORICAL_HOSTS_FILE_BACKUP
     fi;
   done < $HISTORICAL_HOSTS_FILE_BACKUP
 
 	mv "$TMP_HISTORICAL_HOSTS_FILE_BACKUP" "$HISTORICAL_HOSTS_FILE_BACKUP"
-	#Copy backup to /tmp/hosts locatoin
+	#Copy backup to /tmp/hosts location
 	cat "$HISTORICAL_HOSTS_FILE_BACKUP" > "$HISTORICAL_HOSTS_FILE"
 
-  rm $TMP_HISTORICAL_HOSTS_FILE_BACKUP;
+  if [ -f $TMP_HISTORICAL_HOSTS_FILE_BACKUP ]; then
+    rm $TMP_HISTORICAL_HOSTS_FILE_BACKUP;
+  fi;
 }
 
 #Show log contents
