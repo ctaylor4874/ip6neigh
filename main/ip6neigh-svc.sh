@@ -153,11 +153,18 @@ add_host_to_historical() {
     touch $HISTORICAL_HOSTS_FILE_BACKUP
   fi;
 
-  exists=$(grep -m 1 "^$addr " "$HISTORICAL_HOSTS_FILE_BACKUP")
-  if [ -z "$exists" ] && [ "${addr//[$' \t\n\r']/}" != 'Deleted' ]; then
-    echo "${host} #${now}" >> "$HISTORICAL_HOSTS_FILE"
+  exists=$(grep -m 1 "^$addr " "$HISTORICAL_HOSTS_FILE")
+
+  if [ -n "$exists" ]; then
+    #Must save changes to another temp file and then move it over the main file.
+    grep -v "^$addr " "$HISTORICAL_HOSTS_FILE" > "$HISTORICAL_HOSTS_FILE_BACKUP"
+  fi;
+
+  if [ "${addr//[$' \t\n\r']/}" != 'Deleted' ]; then
     echo "${host} #${now}" >> "$HISTORICAL_HOSTS_FILE_BACKUP"
   fi
+
+	cat "$HISTORICAL_HOSTS_FILE_BACKUP" > "$HISTORICAL_HOSTS_FILE"
 
 	logmsg "Added host to historical host files: $host #$now"
 }
